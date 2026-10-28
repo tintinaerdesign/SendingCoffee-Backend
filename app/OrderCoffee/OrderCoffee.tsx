@@ -16,7 +16,7 @@ type Props = {
     onClose: () => void;
 };
 
-const coffees: Coffee[] = [
+export const coffees: Coffee[] = [
     {
         id: '1',
         name: 'Iced Americano',
@@ -27,13 +27,13 @@ const coffees: Coffee[] = [
         id: '2',
         name: 'Iced Latte',
         description: "ไม่มีนมโอ้ต.. นะครับ",
-        image: '/assets/Latte.jpg'
+        image: '/assets/bead-latte.jpg'
     },
     {
         id: '3',
         name: 'Orange Espresso',
         description: 'น้ำส้มคั้น เคี้ยวหนุบหนับ',
-        image: '/assets/Orange.jpg'
+        image: '/assets/OS.jpg'
     },
     {
         id: '4',
@@ -49,7 +49,7 @@ const coffees: Coffee[] = [
     },
 ];
 
-export default function OrderCoffee({lang}: Props) {
+export default function OrderCoffee({ lang }: Props) {
     // 1. แก้ไข Type ให้เป็น Coffee | null (เพราะเลือกทีละแก้ว)
     const [selectedCoffee, setSelectedCoffee] = useState<Coffee | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -146,7 +146,7 @@ export function ConfirmOrder({lang, onClose, coffee }: ConfirmOrderProps) {
 
     const isReady = nickname.trim() !== '';
 
-    const handleConfirmed = () => {
+    const handleConfirmed = async () => {
         // เช็คว่าถ้ายังไม่กรอกชื่อ ให้แสดง Error แล้วหยุดการทำงาน (ไม่ปิด Modal)
         if (!isReady) {
             setErrorMessage('โปรดระบุชื่อเล่น . . . .');
@@ -157,9 +157,38 @@ export function ConfirmOrder({lang, onClose, coffee }: ConfirmOrderProps) {
         const note = inputRef.current?.value || '';
         const currentSweetness = sweetnessList[sweetnessIndex].level;
 
-        alert(`สั่งซื้อสำเร็จ!\nคุณ: ${nickname}\nเมนู: ${coffee.name}\nความหวาน: ${currentSweetness}\nหมายเหตุ: ${note || '-'}`);
+        // เตรียม Payload ที่จะส่งไปหา backend
+        const orderData = {
+            name: nickname.trim(),
+            menuName: coffee.name,
+            sweetness: currentSweetness,
+            note: note,
+            timestamp: new Date().toISOString()
+        };
 
-        onClose();
+        try {
+            const SERVER_IP = '192.168.1.50' //เปลี่ยน ipconfig ตามข้อมูลจริงภายหลัง
+            const PORT = 5000;
+            const response = await fetch(`http://${SERVER_IP}:${PORT}/api/orders/printer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                alert(`ส่งออเดอร์ของคุณ ${nickname} เรียบร้อยครับ`);
+                onClose();
+            } else {
+                alert('เกิดข้อผิดพลาดในการส่งออเดอร์');
+            }
+        } catch (error) {
+                console.log('ERROR: ',err);
+                alert('ไม่สามารถเชื่อมต่อกับระบบพิมพ์ออเดอร์ได้');
+            }
+
     };
 
     const handleToggleSweetness = () => {
@@ -169,7 +198,7 @@ export function ConfirmOrder({lang, onClose, coffee }: ConfirmOrderProps) {
     const currentSweetness = sweetnessList[sweetnessIndex].level;
 
     return(
-        <div className="z-40 fixed inset-0 backdrop-blur-md bg-black/70 flex items-center justify-center p-4"
+        <div className="z-47 fixed inset-0 backdrop-blur-md bg-black/70 flex items-center justify-center p-4"
              onClick={onClose}>
             <div className="relative max-w-md w-full mx-auto bg-[#121212] border border-white/20 rounded-2xl overflow-hidden shadow-2xl"
                  onClick={(e) => e.stopPropagation()}>

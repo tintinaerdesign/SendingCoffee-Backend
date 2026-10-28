@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
-import FirstPanel from "@/app/components/auth/FirstPanel";
-import OrderCoffee from "@/app/components/OrderCoffee/OrderCoffee";
+import FirstPanel from "@/app/FirstPanel/FirstPanel";
+import OrderCoffee from "@/app/OrderCoffee/OrderCoffee";
+import Navbar from "@/app/components/common/Navbar";
 
 export type Language = 'th' | 'en' | 'zh'
 
@@ -10,8 +11,12 @@ export default function Home() {
 
   return(
       <main>
-          <OrderCoffee
+          <Navbar
             lang={lang}
+            setLang={setLang}
+          />
+          <OrderCoffee
+                lang={lang}
           />
 
       </main>
