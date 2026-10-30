@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db/database.js');
-const { dynamicQrCode } = require('../services/qrServices.js');
-const { printOrderReceipt } = require('../services/printerService');
+const db = require('../db/database.cjs');
+const { dynamicQrCode } = require('../services/qrServices.cjs');
+const { printOrderReceipt } = require('../services/printerService.cjs');
 
 router.post('/generate-qr', async (req, res) => {
     try{
@@ -43,7 +43,7 @@ router.post('/printer', async (req, res) => {
 
         console.log('Receiving order for printing: ', orderData);
         const query = `INSERT INTO orders (customer_name, menu_name, sweetness, amount, note, status)
-                                VALUES (?, ?, ?, ?, ?, ?)`;
+                       VALUES (?, ?, ?, ?, ?, ?)`;
         const params = [
             orderData.name,
             orderData.menuName,
@@ -52,18 +52,11 @@ router.post('/printer', async (req, res) => {
             orderData.note || '',
             'pending'
         ];
-        // เราจะใช้ Promise ครอบก่อนนะจ๊ะ เพื่อรอให้การบันทึกข้อมูลเสร็จก่อน
-        await new Promise((resolve, reject) => {
-            db.run(query, params, function(err) {
-                if (err) {
-                    console.log('Database Insert Error: ', err);
-                    reject(err);
-                } else {
-                    console.log(`Order Saved to Database with ID: ${this.lastID}`);
-                    resolve(this.lastID);
-                }
-            });
-        });
+
+        // ใช้ better-sqlite3 แบบถูกต้อง
+        const stmt = db.prepare(query);
+        const info = stmt.run(params);
+        console.log(`Order Saved to Database with ID: ${info.lastInsertRowid}`);
 
         const printResult = await printOrderReceipt(orderData);
 

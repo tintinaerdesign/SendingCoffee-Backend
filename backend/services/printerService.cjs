@@ -4,9 +4,9 @@ escpos.Network = require('escpos-network'); // 1. แก้ไขสะกดค
 const printOrderReceipt = async (orderData) => {
     return new Promise((resolve, reject) => {
         try {
-            const PRINTER_IP = '*********';
-            const device = new escpos.Network(*****); //รอใส่ PRINTER_IP
-            const printer = new escpos.Printer(device); // 2. เอาเครื่องหมาย Single Quote ออก ให้ส่งตัวแปร device เข้าไป
+            const PRINTER_IP = '192.168.10.201';
+            const device = new escpos.Network(PRINTER_IP);
+            const printer = new escpos.Printer(device);
 
             device.open(function(error) {
                 if (error) {
@@ -16,25 +16,31 @@ const printOrderReceipt = async (orderData) => {
 
                 // แสดงผลกระดาษจาก Thermal Printer
                 printer
+
                     .font('a')
                     .align('c')
-                    .style('b')
-                    .size(1,1)
-                    .text('===== CDC Students Order =====')
-                    .text('---------------------------------------')
+                    .style('normal')
+                    .size(0,0)
+                    .text('========= CDC Students Order =========')
+                    .text('------------------')
 
                     .align('l')
                     .style('normal')
-                    .text(`ชื่อลูกค้า: ${orderData.name}`)
-                    .text(`เมนู: ${orderData.menuName}`)
-                    .text(`ระดับความหวาน: ${orderData.sweetness}`)
-                    .text(`หมายเหตุ: ${orderData.note || '-'}`)
+                    .size(0,0)
+                    .text(`customer: ${orderData.name}`)
+                    .text(`menuName: ${orderData.menuName}`)
+                    .text(`sweetness: ${orderData.sweetness}`)
+                    .text(`note: ${orderData.note || '-'}`)
 
-                    .text('----------------------------------------')
-                    .text(`เวลาสั่ง: ${new Date(orderData.timestamp).toLocaleTimeString('th-TH')}`)
+                    .size(0,0)
+                    .text('-----------------')
+                    .text(`Time: ${new Date(orderData.timestamp).toLocaleTimeString('th-TH')}`)
 
                     .align('c')
-                    .text('⚡ Stack Sats, Stay Humble ⚡')
+                    .style('normal')
+                    .size(0,0)
+                    .text(' Stack Sats, Stay Humble ')
+                    .text('---')
                     .cut() // เป็นการตัดกระดาษอัติโนมัติ
                     .close(() => {
                         console.log('Successfully Printed');

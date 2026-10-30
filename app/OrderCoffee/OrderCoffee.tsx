@@ -167,7 +167,7 @@ export function ConfirmOrder({lang, onClose, coffee }: ConfirmOrderProps) {
         };
 
         try {
-            const SERVER_IP = '192.168.1.50' //เปลี่ยน ipconfig ตามข้อมูลจริงภายหลัง
+            const SERVER_IP = 'localhost' //เปลี่ยน ipconfig ตามข้อมูลจริงภายหลัง
             const PORT = 5000;
             const response = await fetch(`http://${SERVER_IP}:${PORT}/api/orders/printer`, {
                 method: 'POST',
@@ -185,7 +185,7 @@ export function ConfirmOrder({lang, onClose, coffee }: ConfirmOrderProps) {
                 alert('เกิดข้อผิดพลาดในการส่งออเดอร์');
             }
         } catch (error) {
-                console.log('ERROR: ',err);
+                console.log('ERROR: ');
                 alert('ไม่สามารถเชื่อมต่อกับระบบพิมพ์ออเดอร์ได้');
             }
 
